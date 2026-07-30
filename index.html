@@ -3,53 +3,238 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Controle de Leads</title>
+  <meta name="color-scheme" content="light dark" />
+  <meta name="theme-color" content="#0f172a" />
+  <title>Leads | Painel Comercial</title>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
   <link rel="stylesheet" href="styles.css" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
-  <main class="shell">
-    <section id="authView" class="auth-card">
-      <h1>Controle de Leads</h1>
-      <p>Acesso exclusivo para dr.jfalcao@gmail.com.</p>
-      <form id="loginForm">
-        <label>E-mail<input id="email" type="email" value="dr.jfalcao@gmail.com" required /></label>
-        <label>Senha<input id="password" type="password" required /></label>
-        <button type="submit">Entrar</button>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <main id="authView" class="auth-shell">
+    <section class="auth-card">
+      <div class="auth-brand">
+        <span class="brand-mark">L</span>
+        <div><strong>Leads</strong><small>Painel Comercial</small></div>
+      </div>
+      <div class="auth-copy">
+        <p class="eyebrow">ACESSO RESTRITO</p>
+        <h1>Controle central da base comercial</h1>
+        <p>Empresas, contatos, estados, responsáveis e status operacionais em uma única interface.</p>
+      </div>
+      <form id="loginForm" class="auth-form">
+        <label>E-mail
+          <input id="email" type="email" autocomplete="username" value="dr.jfalcao@gmail.com" required />
+        </label>
+        <label>Senha
+          <div class="password-wrap">
+            <input id="password" type="password" autocomplete="current-password" required />
+            <button id="togglePassword" class="icon-button" type="button" aria-label="Mostrar senha">◉</button>
+          </div>
+        </label>
+        <button class="button primary wide" type="submit"><span>Entrar</span></button>
+        <p id="authMessage" class="form-message"></p>
       </form>
-      <p id="authMessage" class="message"></p>
-    </section>
-
-    <section id="appView" hidden>
-      <header class="topbar">
-        <div><h1>Controle de Leads</h1><p>Empresas do HubSpot organizadas por status</p></div>
-        <button id="logoutBtn" class="secondary">Sair</button>
-      </header>
-
-      <section id="statusCards" class="stats"></section>
-
-      <section class="panel filters">
-        <input id="searchInput" placeholder="Empresa, CNPJ ou telefone" />
-        <select id="statusFilter"><option value="">Todos os status</option></select>
-        <select id="stateFilter"><option value="">Todos os estados</option></select>
-        <input id="ownerFilter" placeholder="Responsável" />
-        <input id="startDate" type="date" title="Data inicial" />
-        <input id="endDate" type="date" title="Data final" />
-        <select id="pageSize"><option value="25">25</option><option value="50" selected>50</option><option value="100">100</option></select>
-        <button id="applyFilters">Filtrar</button>
-        <button id="clearFilters" class="secondary">Limpar</button>
-      </section>
-
-      <section class="panel table-panel">
-        <div class="table-wrap"><table>
-          <thead><tr><th>Empresa</th><th>Status</th><th>Contato</th><th>Responsável</th><th>Telefone</th><th>CNPJ</th><th>Cidade/UF</th><th>Entrada</th><th>HubSpot</th></tr></thead>
-          <tbody id="leadsBody"></tbody>
-        </table></div>
-        <div id="emptyState" class="empty" hidden>Nenhum registro encontrado.</div>
-        <footer class="pagination"><button id="prevPage" class="secondary">Anterior</button><span id="paginationInfo"></span><button id="nextPage" class="secondary">Próxima</button></footer>
-      </section>
+      <div class="auth-foot">Somente <strong>dr.jfalcao@gmail.com</strong> está autorizado.</div>
     </section>
   </main>
+
+  <div id="appView" class="app-shell" hidden>
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <span class="brand-mark">L</span>
+        <div><strong>Leads</strong><small>Base HubSpot</small></div>
+      </div>
+      <nav class="nav-list" aria-label="Navegação principal">
+        <button class="nav-item active" data-view="overview"><span>▦</span>Visão geral</button>
+        <button class="nav-item" data-view="companies"><span>▤</span>Empresas</button>
+        <button class="nav-item" data-view="contacts"><span>◎</span>Contatos</button>
+        <button class="nav-item" data-view="states"><span>◇</span>Estados</button>
+        <button class="nav-item" data-view="settings"><span>⚙</span>Configurações</button>
+      </nav>
+      <div class="sidebar-foot">
+        <div class="snapshot-badge"><span></span><div><strong>Snapshot estático</strong><small id="snapshotLabel">23/07/2026</small></div></div>
+        <button id="logoutBtn" class="button ghost wide">Sair</button>
+      </div>
+    </aside>
+
+    <section class="workspace">
+      <header class="topbar">
+        <button id="mobileMenu" class="icon-button mobile-only" aria-label="Abrir menu">☰</button>
+        <div>
+          <p class="eyebrow" id="sectionEyebrow">PAINEL COMERCIAL</p>
+          <h1 id="sectionTitle">Visão geral</h1>
+        </div>
+        <div class="topbar-actions">
+          <button id="themeToggle" class="icon-button" aria-label="Alternar tema">◐</button>
+          <div class="user-chip"><span>JF</span><div><strong>José Falcão</strong><small>Administrador</small></div></div>
+        </div>
+      </header>
+
+      <div class="content">
+        <section id="view-overview" class="view active">
+          <div class="hero-card">
+            <div>
+              <p class="eyebrow">BASE COMERCIAL</p>
+              <h2>Controle operacional por estado, status e responsável</h2>
+              <p>Fotografia da base de 23 de julho de 2026. Novos registros do HubSpot não serão incorporados automaticamente.</p>
+            </div>
+            <button class="button primary" data-go="companies">Explorar empresas</button>
+          </div>
+
+          <div id="overviewStats" class="metric-grid"></div>
+
+          <div class="dashboard-grid">
+            <section class="panel span-7">
+              <div class="panel-head"><div><p class="eyebrow">DISTRIBUIÇÃO</p><h3>Empresas por estado</h3></div><button class="text-button" data-go="states">Ver todos</button></div>
+              <div id="stateBars" class="bar-list loading-block"></div>
+            </section>
+            <section class="panel span-5">
+              <div class="panel-head"><div><p class="eyebrow">FUNIL</p><h3>Status da base</h3></div></div>
+              <div id="statusDonut" class="donut-layout loading-block"></div>
+            </section>
+            <section class="panel span-6">
+              <div class="panel-head"><div><p class="eyebrow">RESPONSÁVEIS</p><h3>Carteiras principais</h3></div></div>
+              <div id="ownerRanking" class="ranking-list loading-block"></div>
+            </section>
+            <section class="panel span-6">
+              <div class="panel-head"><div><p class="eyebrow">QUALIDADE</p><h3>Pendências cadastrais</h3></div></div>
+              <div id="qualityCards" class="quality-grid loading-block"></div>
+            </section>
+          </div>
+        </section>
+
+        <section id="view-companies" class="view">
+          <section class="panel filters-panel">
+            <div class="filters-head"><div><p class="eyebrow">CONSULTA</p><h3>Empresas</h3></div><div class="filter-actions"><button id="exportCompanies" class="button ghost">Exportar página</button><button id="refreshCompanies" class="button secondary">Atualizar tela</button></div></div>
+            <div class="filter-grid">
+              <label class="field grow"><span>Buscar</span><input id="companySearch" placeholder="Empresa, CNPJ ou telefone" /></label>
+              <label class="field"><span>Estado</span><select id="companyState"><option value="">Todos</option></select></label>
+              <label class="field"><span>Status</span><select id="companyStatus"><option value="">Todos</option></select></label>
+              <label class="field"><span>Responsável</span><select id="companyOwner"><option value="">Todos</option></select></label>
+              <label class="field"><span>Qualidade</span><select id="companyQuality"><option value="">Todos</option><option value="without_cnpj">Sem CNPJ</option><option value="without_phone">Sem telefone</option><option value="without_state">Sem estado</option><option value="with_contacts">Com contatos</option></select></label>
+              <label class="field compact"><span>Por página</span><select id="companyPageSize"><option>25</option><option selected>50</option><option>100</option></select></label>
+            </div>
+          </section>
+
+          <section class="panel table-panel">
+            <div class="table-meta"><span id="companyResultLabel">0 empresas</span><span id="companyPageLabel"></span></div>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Empresa</th><th>Status</th><th>Responsável</th><th>Telefone</th><th>CNPJ</th><th>Cidade / UF</th><th>Contatos</th><th>Prioridade</th><th></th></tr></thead>
+                <tbody id="companiesBody"></tbody>
+              </table>
+              <div id="companiesEmpty" class="empty-state" hidden><strong>Nenhuma empresa encontrada</strong><span>Ajuste os filtros para ampliar a busca.</span></div>
+            </div>
+            <footer class="pagination"><button id="companyPrev" class="button ghost">Anterior</button><span id="companyPagination"></span><button id="companyNext" class="button ghost">Próxima</button></footer>
+          </section>
+        </section>
+
+        <section id="view-contacts" class="view">
+          <section class="panel filters-panel">
+            <div class="filters-head"><div><p class="eyebrow">PESSOAS</p><h3>Contatos</h3></div><button id="newContactBtn" class="button primary">Novo contato</button></div>
+            <div class="filter-grid contacts-filter">
+              <label class="field grow"><span>Buscar</span><input id="contactSearch" placeholder="Nome, e-mail, telefone ou empresa" /></label>
+              <label class="field"><span>Status</span><select id="contactStatus"><option value="">Todos</option><option>Novo</option><option>Em contato</option><option>Qualificado</option><option>Sem interesse</option></select></label>
+              <label class="field compact"><span>Por página</span><select id="contactPageSize"><option>25</option><option selected>50</option><option>100</option></select></label>
+            </div>
+          </section>
+
+          <div id="contactStats" class="metric-grid compact-grid"></div>
+
+          <section class="panel table-panel">
+            <div class="table-meta"><span id="contactResultLabel">0 contatos</span><span id="contactPageLabel"></span></div>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Contato</th><th>Empresa</th><th>E-mail</th><th>Telefone</th><th>Cargo</th><th>Status</th><th></th></tr></thead>
+                <tbody id="contactsBody"></tbody>
+              </table>
+              <div id="contactsEmpty" class="empty-state" hidden><strong>Nenhum contato encontrado</strong><span>Os contatos individuais podem ser cadastrados e vinculados às empresas.</span></div>
+            </div>
+            <footer class="pagination"><button id="contactPrev" class="button ghost">Anterior</button><span id="contactPagination"></span><button id="contactNext" class="button ghost">Próxima</button></footer>
+          </section>
+        </section>
+
+        <section id="view-states" class="view">
+          <section class="panel filters-panel state-header">
+            <div><p class="eyebrow">TERRITÓRIO</p><h3>Empresas por estado</h3><p>Selecione uma UF para abrir a carteira correspondente.</p></div>
+            <label class="field state-search"><span>Filtrar estados</span><input id="stateSearch" placeholder="Digite a UF ou nome" /></label>
+          </section>
+          <div id="stateCards" class="state-grid"></div>
+        </section>
+
+        <section id="view-settings" class="view">
+          <div class="settings-grid">
+            <section class="panel">
+              <div class="panel-head"><div><p class="eyebrow">CONTA</p><h3>Acesso</h3></div></div>
+              <dl class="details-list"><div><dt>Usuário autorizado</dt><dd>dr.jfalcao@gmail.com</dd></div><div><dt>Nível</dt><dd>Administrador exclusivo</dd></div><div><dt>Base</dt><dd>Snapshot HubSpot de 23/07/2026</dd></div></dl>
+              <button id="openPasswordModal" class="button secondary">Alterar senha</button>
+            </section>
+            <section class="panel">
+              <div class="panel-head"><div><p class="eyebrow">APARÊNCIA</p><h3>Preferências</h3></div></div>
+              <div class="setting-row"><div><strong>Tema escuro</strong><span>Alterna a aparência somente neste dispositivo.</span></div><button id="settingsThemeToggle" class="switch" role="switch" aria-checked="false"><span></span></button></div>
+            </section>
+            <section class="panel">
+              <div class="panel-head"><div><p class="eyebrow">INTEGRAÇÃO</p><h3>Origem dos dados</h3></div></div>
+              <div class="integration-card"><span class="integration-logo">H</span><div><strong>HubSpot</strong><p>Importação única. Sem atualização automática.</p></div><span class="status-pill neutral">Snapshot</span></div>
+              <div class="integration-card"><span class="integration-logo">S</span><div><strong>Supabase</strong><p>Banco, autenticação e controle de acesso.</p></div><span class="status-pill success">Conectado</span></div>
+            </section>
+          </div>
+        </section>
+      </div>
+    </section>
+  </div>
+
+  <dialog id="companyDialog" class="drawer-dialog">
+    <form method="dialog" class="drawer-shell" id="companyForm">
+      <header class="drawer-head"><div><p class="eyebrow">EMPRESA</p><h2 id="companyDialogTitle">Detalhes</h2></div><button class="icon-button" value="cancel" aria-label="Fechar">×</button></header>
+      <div class="drawer-body">
+        <div id="companyIdentity" class="identity-card"></div>
+        <div class="form-grid">
+          <label class="field"><span>Status operacional</span><select id="editCompanyStatus"><option value="">Sem status personalizado</option><option>Novo</option><option>Em contato</option><option>Qualificado</option><option>Proposta</option><option>Cliente</option><option>Descartado</option></select></label>
+          <label class="field"><span>Prioridade</span><select id="editCompanyPriority"><option value="0">Normal</option><option value="1">Baixa</option><option value="2">Média</option><option value="3">Alta</option></select></label>
+          <label class="field full"><span>Observações</span><textarea id="editCompanyNotes" rows="4" placeholder="Registre próximos passos, contexto e pendências"></textarea></label>
+        </div>
+        <section class="drawer-section"><div class="section-row"><h3>Contatos associados</h3><button id="addContactForCompany" type="button" class="button ghost small">Adicionar contato</button></div><div id="companyContacts" class="contact-list"></div></section>
+        <section class="drawer-section"><h3>Dados da empresa</h3><div id="companyDetails" class="detail-grid"></div></section>
+      </div>
+      <footer class="drawer-foot"><button class="button ghost" value="cancel">Cancelar</button><button id="saveCompanyBtn" type="button" class="button primary">Salvar alterações</button></footer>
+    </form>
+  </dialog>
+
+  <dialog id="contactDialog" class="modal-dialog">
+    <form method="dialog" id="contactForm" class="modal-card">
+      <header class="modal-head"><div><p class="eyebrow">CONTATO</p><h2 id="contactDialogTitle">Novo contato</h2></div><button class="icon-button" value="cancel" aria-label="Fechar">×</button></header>
+      <div class="modal-body form-grid">
+        <input id="contactId" type="hidden" />
+        <label class="field"><span>Nome</span><input id="contactFirstName" required /></label>
+        <label class="field"><span>Sobrenome</span><input id="contactLastName" /></label>
+        <label class="field"><span>E-mail</span><input id="contactEmail" type="email" /></label>
+        <label class="field"><span>Telefone</span><input id="contactPhone" /></label>
+        <label class="field"><span>Celular / WhatsApp</span><input id="contactMobile" /></label>
+        <label class="field"><span>Cargo</span><input id="contactJob" /></label>
+        <label class="field"><span>Empresa</span><input id="contactCompany" placeholder="Nome da empresa" /></label>
+        <label class="field"><span>Status</span><select id="contactCustomStatus"><option value="">Sem status</option><option>Novo</option><option>Em contato</option><option>Qualificado</option><option>Sem interesse</option></select></label>
+        <label class="field full"><span>Observações</span><textarea id="contactNotes" rows="3"></textarea></label>
+      </div>
+      <footer class="modal-foot"><button class="button ghost" value="cancel">Cancelar</button><button id="saveContactBtn" type="button" class="button primary">Salvar contato</button></footer>
+    </form>
+  </dialog>
+
+  <dialog id="passwordDialog" class="modal-dialog">
+    <form method="dialog" class="modal-card small-modal">
+      <header class="modal-head"><div><p class="eyebrow">SEGURANÇA</p><h2>Alterar senha</h2></div><button class="icon-button" value="cancel" aria-label="Fechar">×</button></header>
+      <div class="modal-body form-grid one-column">
+        <label class="field"><span>Nova senha</span><input id="newPassword" type="password" minlength="10" required /></label>
+        <label class="field"><span>Confirmar senha</span><input id="confirmPassword" type="password" minlength="10" required /></label>
+        <p class="helper-text">Use ao menos 10 caracteres, combinando letras, números e símbolos.</p>
+      </div>
+      <footer class="modal-foot"><button class="button ghost" value="cancel">Cancelar</button><button id="savePasswordBtn" type="button" class="button primary">Atualizar senha</button></footer>
+    </form>
+  </dialog>
+
   <script src="app.js"></script>
 </body>
 </html>
