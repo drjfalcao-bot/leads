@@ -11,9 +11,9 @@
   <main class="shell">
     <section id="authView" class="auth-card">
       <h1>Controle de Leads</h1>
-      <p>Acesso restrito à base sincronizada com o HubSpot.</p>
+      <p>Acesso exclusivo para dr.jfalcao@gmail.com.</p>
       <form id="loginForm">
-        <label>E-mail<input id="email" type="email" required /></label>
+        <label>E-mail<input id="email" type="email" value="dr.jfalcao@gmail.com" required /></label>
         <label>Senha<input id="password" type="password" required /></label>
         <button type="submit">Entrar</button>
       </form>
@@ -22,47 +22,31 @@
 
     <section id="appView" hidden>
       <header class="topbar">
-        <div><h1>Controle de Leads</h1><p>Empresas e contatos do HubSpot</p></div>
+        <div><h1>Controle de Leads</h1><p>Empresas do HubSpot organizadas por status</p></div>
         <button id="logoutBtn" class="secondary">Sair</button>
       </header>
 
-      <section class="stats">
-        <article><span>Total filtrado</span><strong id="totalCount">0</strong></article>
-        <article><span>Página</span><strong id="pageLabel">1</strong></article>
-        <article><span>Por página</span><strong id="pageSizeLabel">50</strong></article>
-      </section>
+      <section id="statusCards" class="stats"></section>
 
       <section class="panel filters">
         <input id="searchInput" placeholder="Empresa, CNPJ ou telefone" />
+        <select id="statusFilter"><option value="">Todos os status</option></select>
         <select id="stateFilter"><option value="">Todos os estados</option></select>
         <input id="ownerFilter" placeholder="Responsável" />
         <input id="startDate" type="date" title="Data inicial" />
         <input id="endDate" type="date" title="Data final" />
-        <select id="pageSize">
-          <option value="25">25</option>
-          <option value="50" selected>50</option>
-          <option value="100">100</option>
-        </select>
+        <select id="pageSize"><option value="25">25</option><option value="50" selected>50</option><option value="100">100</option></select>
         <button id="applyFilters">Filtrar</button>
         <button id="clearFilters" class="secondary">Limpar</button>
       </section>
 
       <section class="panel table-panel">
-        <div class="table-wrap">
-          <table>
-            <thead><tr>
-              <th>Empresa</th><th>Contato</th><th>Responsável</th><th>Telefone</th>
-              <th>CNPJ</th><th>Cidade/UF</th><th>Entrada</th><th>HubSpot</th>
-            </tr></thead>
-            <tbody id="leadsBody"></tbody>
-          </table>
-        </div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Empresa</th><th>Status</th><th>Contato</th><th>Responsável</th><th>Telefone</th><th>CNPJ</th><th>Cidade/UF</th><th>Entrada</th><th>HubSpot</th></tr></thead>
+          <tbody id="leadsBody"></tbody>
+        </table></div>
         <div id="emptyState" class="empty" hidden>Nenhum registro encontrado.</div>
-        <footer class="pagination">
-          <button id="prevPage" class="secondary">Anterior</button>
-          <span id="paginationInfo"></span>
-          <button id="nextPage" class="secondary">Próxima</button>
-        </footer>
+        <footer class="pagination"><button id="prevPage" class="secondary">Anterior</button><span id="paginationInfo"></span><button id="nextPage" class="secondary">Próxima</button></footer>
       </section>
     </section>
   </main>
