@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="theme-color" content="#0f172a" />
+  <title>Importar base | Leads</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.5.3/papaparse.min.js"></script>
+  <style>
+    :root{font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#142033;background:#eef2f7;line-height:1.45}*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(circle at top left,#dbeafe 0,transparent 32rem),#eef2f7}.shell{width:min(920px,calc(100% - 28px));margin:28px auto}.top{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}.brand{display:flex;align-items:center;gap:11px}.mark{display:grid;place-items:center;width:42px;height:42px;border-radius:12px;background:#0f172a;color:white;font-weight:900;font-size:21px}.brand strong{display:block;font-size:18px}.brand small{color:#64748b}.back{color:#1d4ed8;text-decoration:none;font-weight:750}.card{background:rgba(255,255,255,.96);border:1px solid #d9e1ea;border-radius:20px;box-shadow:0 20px 55px rgba(15,23,42,.10);overflow:hidden}.hero{padding:28px;border-bottom:1px solid #e3e8ef;background:linear-gradient(135deg,#0f172a,#1e3a8a);color:white}.eyebrow{margin:0 0 7px;font-size:11px;font-weight:900;letter-spacing:.13em;color:#93c5fd}.hero h1{margin:0;font-size:clamp(26px,4vw,39px);letter-spacing:-.035em}.hero p{max-width:700px;margin:11px 0 0;color:#dbeafe}.content{padding:26px}.status-row{display:grid;grid-template-columns:repeat(3,1fr);gap:11px;margin-bottom:22px}.stat{padding:15px;border:1px solid #dbe3ed;border-radius:14px;background:#f8fafc}.stat span{display:block;font-size:11px;font-weight:800;color:#64748b;text-transform:uppercase;letter-spacing:.07em}.stat strong{display:block;margin-top:5px;font-size:21px}.login{display:grid;grid-template-columns:1fr 1fr auto;gap:10px;align-items:end;padding:17px;border:1px solid #dbe3ed;background:#f8fafc;border-radius:15px;margin-bottom:20px}.field{display:grid;gap:6px}.field span{font-size:12px;font-weight:800;color:#475569}.field input{width:100%;border:1px solid #cbd5e1;border-radius:10px;padding:11px 12px;font:inherit;background:white}.button{border:0;border-radius:10px;padding:11px 16px;font:inherit;font-weight:850;cursor:pointer}.primary{background:#1d4ed8;color:white}.secondary{background:#e2e8f0;color:#1e293b}.button:disabled{opacity:.55;cursor:not-allowed}.drop{position:relative;display:grid;place-items:center;text-align:center;min-height:190px;border:2px dashed #94a3b8;border-radius:17px;background:#f8fafc;padding:22px;cursor:pointer;transition:.2s}.drop:hover{border-color:#2563eb;background:#eff6ff}.drop input{position:absolute;inset:0;opacity:0;cursor:pointer}.upload-icon{display:grid;place-items:center;width:50px;height:50px;border-radius:14px;background:#dbeafe;color:#1d4ed8;font-size:28px;font-weight:900}.drop strong{margin-top:10px;font-size:17px}.drop small{margin-top:4px;color:#64748b}.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:14px}.progress-box{margin-top:22px;padding:17px;border:1px solid #dbe3ed;border-radius:15px;background:#f8fafc}.progress-head{display:flex;justify-content:space-between;gap:12px;margin-bottom:10px}.progress-head span{font-weight:900;color:#1d4ed8}progress{display:block;width:100%;height:14px;accent-color:#2563eb}.detail{display:flex;justify-content:space-between;gap:12px;margin-top:8px;color:#64748b;font-size:12px}.message{min-height:24px;margin:14px 0 0;font-weight:750}.message.error{color:#b91c1c}.message.success{color:#047857}.warning{margin-top:22px;padding:14px 16px;border-radius:13px;background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;font-size:13px}.hidden{display:none!important}@media(max-width:700px){.shell{margin:12px auto}.hero,.content{padding:20px}.status-row{grid-template-columns:1fr}.login{grid-template-columns:1fr}.top{align-items:flex-start}.back{font-size:13px}}
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header class="top">
+      <div class="brand"><span class="mark">L</span><div><strong>Leads</strong><small>Importação de snapshot</small></div></div>
+      <a class="back" href="index.html">Voltar ao painel</a>
+    </header>
+
+    <section class="card">
+      <div class="hero">
+        <p class="eyebrow">CARGA ÚNICA · 23/07/2026</p>
+        <h1>Importar 320.085 empresas</h1>
+        <p>O arquivo é processado em 17 partes e enviado ao Supabase em lotes. Os 27 campos são preservados dentro de cada registro.</p>
+      </div>
+
+      <div class="content">
+        <div class="status-row">
+          <article class="stat"><span>Esperado</span><strong>320.085</strong></article>
+          <article class="stat"><span>No banco</span><strong id="dbCount">—</strong></article>
+          <article class="stat"><span>Estado</span><strong id="dbState">Verificando</strong></article>
+        </div>
+
+        <form id="loginForm" class="login hidden">
+          <label class="field"><span>E-mail</span><input id="email" type="email" value="dr.jfalcao@gmail.com" autocomplete="username" required /></label>
+          <label class="field"><span>Senha</span><input id="password" type="password" autocomplete="current-password" required /></label>
+          <button class="button primary" type="submit">Entrar</button>
+        </form>
+
+        <section id="importArea" class="hidden">
+          <label class="drop" for="zipFile">
+            <input id="zipFile" type="file" accept=".zip,application/zip" />
+            <span class="upload-icon">⇧</span>
+            <strong>Selecionar HubSpot_Base_Importacao_2026-07-23.zip</strong>
+            <small id="fileLabel">Arquivo compactado de aproximadamente 11 MB</small>
+          </label>
+
+          <div class="actions">
+            <button id="startBtn" class="button primary" type="button" disabled>Iniciar importação</button>
+            <button id="checkBtn" class="button secondary" type="button">Verificar banco</button>
+            <button id="logoutBtn" class="button secondary" type="button">Sair</button>
+          </div>
+
+          <div id="progressBox" class="progress-box hidden">
+            <div class="progress-head"><strong id="progressLabel">Preparando arquivo…</strong><span id="progressPercent">0%</span></div>
+            <progress id="progress" max="320085" value="0"></progress>
+            <div class="detail"><span id="progressDetail">0 de 320.085 empresas</span><span id="partDetail">Parte 0 de 17</span></div>
+          </div>
+        </section>
+
+        <p id="message" class="message"></p>
+        <div class="warning"><strong>Não feche esta página durante a carga.</strong> A importação pode levar alguns minutos. Ao final, o sistema confere a contagem real do Supabase antes de marcar a base como concluída.</div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const SUPABASE_URL = 'https://bednyrjjescarwbhsfwz.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable__2b3v54XmPqN1dk8Gc787w_8mIq7k0w';
+    const ALLOWED_EMAIL = 'dr.jfalcao@gmail.com';
+    const EXPECTED = 320085;
+    const BATCH_SIZE = 2500;
+    const ENDPOINT = `${SUPABASE_URL}/functions/v1/import-hubspot-snapshot`;
+    const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    const $ = (id) => document.getElementById(id);
+    let selectedFile = null;
+    let running = false;
+
+    const fmt = (value) => Number(value || 0).toLocaleString('pt-BR');
+    function setMessage(text, type = '') { $('message').textContent = text; $('message').className = `message ${type}`; }
+    function setProgress(value, label, part = '') {
+      const bounded = Math.min(EXPECTED, Math.max(0, Number(value || 0)));
+      $('progress').value = bounded;
+      $('progressLabel').textContent = label;
+      $('progressPercent').textContent = `${Math.floor(bounded / EXPECTED * 100)}%`;
+      $('progressDetail').textContent = `${fmt(bounded)} de ${fmt(EXPECTED)} empresas`;
+      if (part) $('partDetail').textContent = part;
+    }
+
+    async function request(payload) {
+      const { data } = await client.auth.getSession();
+      const token = data.session?.access_token;
+      if (!token) throw new Error('Sessão expirada. Entre novamente.');
+      const response = await fetch(ENDPOINT, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+          'apikey': SUPABASE_KEY,
+        },
+        body: JSON.stringify(payload),
+      });
+      const body = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        const detail = body?.error?.message || body?.error || body?.detail?.message || `Erro HTTP ${response.status}`;
+        throw new Error(typeof detail === 'string' ? detail : JSON.stringify(detail));
+      }
+      return body;
+    }
+
+    async function checkStatus(silent = false) {
+      try {
+        const result = await request({ action: 'status' });
+        const count = Number(result.count || 0);
+        $('dbCount').textContent = fmt(count);
+        const complete = Boolean(result.sync?.completed) && count === EXPECTED;
+        $('dbState').textContent = complete ? 'Concluída' : result.sync?.running ? 'Em andamento' : count ? 'Parcial' : 'Vazia';
+        if (!silent) setMessage(complete ? 'A base está completa no Supabase.' : `O banco contém ${fmt(count)} empresas.`, complete ? 'success' : '');
+        return result;
+      } catch (error) {
+        if (!silent) setMessage(error.message, 'error');
+        throw error;
+      }
+    }
+
+    async function applySession(session) {
+      const email = String(session?.user?.email || '').toLowerCase();
+      if (session && email !== ALLOWED_EMAIL) {
+        await client.auth.signOut();
+        setMessage('E-mail não autorizado.', 'error');
+        return;
+      }
+      $('loginForm').classList.toggle('hidden', Boolean(session));
+      $('importArea').classList.toggle('hidden', !session);
+      if (session) await checkStatus(true).catch(() => {});
+    }
+
+    $('loginForm').addEventListener('submit', async (event) => {
+      event.preventDefault();
+      setMessage('Autenticando…');
+      const email = $('email').value.trim().toLowerCase();
+      if (email !== ALLOWED_EMAIL) return setMessage('E-mail não autorizado.', 'error');
+      const { error } = await client.auth.signInWithPassword({ email, password: $('password').value });
+      if (error) setMessage(error.message, 'error'); else setMessage('Login realizado.', 'success');
+    });
+
+    $('zipFile').addEventListener('change', () => {
+      selectedFile = $('zipFile').files?.[0] || null;
+      $('startBtn').disabled = !selectedFile || running;
+      $('fileLabel').textContent = selectedFile ? `${selectedFile.name} · ${(selectedFile.size / 1024 / 1024).toFixed(1)} MB` : 'Arquivo compactado de aproximadamente 11 MB';
+    });
+
+    $('checkBtn').onclick = () => checkStatus(false);
+    $('logoutBtn').onclick = () => client.auth.signOut();
+
+    $('startBtn').onclick = async () => {
+      if (!selectedFile || running) return;
+      running = true;
+      $('startBtn').disabled = true;
+      $('zipFile').disabled = true;
+      $('progressBox').classList.remove('hidden');
+      setMessage('Lendo o arquivo ZIP…');
+      setProgress(0, 'Lendo o arquivo ZIP…', 'Preparando partes');
+
+      try {
+        const zip = await JSZip.loadAsync(selectedFile);
+        const manifestEntry = zip.file('manifesto.json');
+        if (!manifestEntry) throw new Error('Manifesto não encontrado no ZIP.');
+        const manifest = JSON.parse(await manifestEntry.async('string'));
+        if (Number(manifest.total) !== EXPECTED) throw new Error(`O arquivo informa ${manifest.total} registros, não ${EXPECTED}.`);
+
+        const parts = Object.values(zip.files)
+          .filter((entry) => !entry.dir && /^parte_\d+\.csv$/i.test(entry.name))
+          .sort((a, b) => a.name.localeCompare(b.name));
+        if (!parts.length) throw new Error('Nenhuma parte CSV encontrada.');
+
+        setMessage('Limpando a carga incompleta e iniciando o snapshot…');
+        await request({ action: 'reset', expected: EXPECTED });
+
+        let processed = 0;
+        for (let partIndex = 0; partIndex < parts.length; partIndex++) {
+          const entry = parts[partIndex];
+          setProgress(processed, `Abrindo ${entry.name}…`, `Parte ${partIndex + 1} de ${parts.length}`);
+          const csvText = await entry.async('string');
+          const parsed = Papa.parse(csvText, {
+            header: true,
+            skipEmptyLines: 'greedy',
+            transformHeader: (header) => String(header).replace(/^\ufeff/, '').trim(),
+          });
+          const rows = parsed.data.filter((row) => row && row['Número do caso']);
+          if (!rows.length) throw new Error(`${entry.name} não contém registros válidos.`);
+
+          for (let offset = 0; offset < rows.length; offset += BATCH_SIZE) {
+            const batch = rows.slice(offset, offset + BATCH_SIZE);
+            processed += batch.length;
+            setProgress(processed, `Gravando ${entry.name}…`, `Parte ${partIndex + 1} de ${parts.length}`);
+            await request({ action: 'batch', rows: batch, processed });
+          }
+        }
+
+        setProgress(processed, 'Conferindo a contagem final…', `Partes processadas: ${parts.length}`);
+        const final = await request({ action: 'finalize', expected: EXPECTED });
+        if (!final.complete) throw new Error(final.error || 'A contagem final divergiu.');
+        setProgress(final.actual, 'Importação concluída', `17 partes concluídas`);
+        setMessage(`${fmt(final.actual)} empresas foram gravadas e validadas no Supabase.`, 'success');
+        await checkStatus(true);
+      } catch (error) {
+        console.error(error);
+        setMessage(`Importação interrompida: ${error.message}`, 'error');
+        await checkStatus(true).catch(() => {});
+      } finally {
+        running = false;
+        $('startBtn').disabled = !selectedFile;
+        $('zipFile').disabled = false;
+      }
+    };
+
+    client.auth.getSession().then(({ data }) => applySession(data.session));
+    client.auth.onAuthStateChange((_event, session) => applySession(session));
+  </script>
+</body>
+</html>
